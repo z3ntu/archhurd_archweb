@@ -2,56 +2,57 @@
 {% block title %}Arch Linux - About{% endblock %}
 {% block content %}
 <div class="box">
-    <h2 class="title">About Arch Linux</h2>
-<p>
-Arch Linux is an independently developed, x86-64 general purpose GNU/Linux
-distribution versatile enough to suit any role. Development focuses on
-simplicity, minimalism, and code elegance. Arch is installed as a
-minimal base system, configured by the user upon which their own ideal
-environment is assembled by installing only what is required or desired
-for their unique purposes. GUI configuration utilities are not officially
-provided, and most system configuration is performed from the shell by editing
-simple text files.  Arch strives to stay bleeding edge, and typically offers
-the latest stable versions of most software.
-</p>
-<p>
-Arch Linux uses its own Pacman package manager, which couples simple binary
-packages with an easy-to-use package build system. This allows users to
-easily manage and customize packages ranging from official Arch software to the
-user's own personal packages to packages from 3rd party sources. The repository
-system also allows users to easily build and maintain their own custom build
-scripts, packages, and repositories, encouraging community growth and
-contribution. 
-</p>
-<p>
-The minimal Arch base package set resides in the streamlined [core] repository.
-In addition, the official [extra], [community], and [testing] repositories
-provide several thousand high-quality, packages to meet your software demands.
-Arch also offers an [unsupported] section in the Arch Linux User Repository
-(AUR), which contains over 9,000 build scripts, for compiling installable
-packages from source using the Arch Linux makepkg application.
-</p>
-<p>
-Arch Linux uses a "rolling release" system which allows one-time installation
-and perpetual software upgrades. It is not generally necessary to reinstall
-or upgrade your Arch Linux system from one "version" to the next. 
-By issuing one command, an Arch system is kept up-to-date and on the bleeding
-edge.  
-</p>
-<p>
-Arch strives to keep its packages as close to the original upstream software as
-possible. Patches are applied only when necessary to ensure an application
-compiles and runs correctly with the other packages installed on an up-to-date
-Arch system.
-</p>
-<p>
-To summarize: Arch Linux is a versatile, and simple distribution designed to
-fit the needs of the competent Linux&#0174; user. It is both powerful and easy
-to manage, making it an ideal distro for servers and workstations.  Take it in
-any direction you like. If you share this vision of what a GNU/Linux
-distribution should be, then you are welcomed and encouraged to use it freely,
-get involved, and contribute to the community. Welcome to Arch!
-</p>
+    <h2 class="title">About Arch Hurd, Arch Linux, and the GNU Hurd</h2>
+<h3>Arch Hurd</h3>
+<p>Arch Hurd is a port of Arch Linux to the GNU Hurd platform. Our goal is to provide an
+    Arch-like user environment (BSD-style init scripts, i686-optimised packages, use of the
+    pacman package manager, rolling-release, and a KISS set up) on the Hurd which is stable
+    enough for use, if not as a primary OS, at least as something to consider as a dual-boot
+    option. Currently we provide a <a href="/web/20170807070045/https://www.archhurd.org/download/" title="Get Hurd">LiveCD</a>
+    for users to install or try Arch Hurd for themselves, and provide an installation guide
+    covering its use, as well as an alternate installation guide for users for whom the LiveCD
+    is not an option, for whatever reason.</p>
+
+<p>The project was founded on 2010-01-04 in a thread on the <a href="https://web.archive.org/web/20170807070045/https://bbs.archlinux.org/viewtopic.php?pid=682472" title="The Arch Hurd Project">Arch Linux forum</a>
+    by <a href="/web/20170807070045/https://www.archhurd.org/developers/" title="Team">Michael Walker (Barrucadu)</a>, and
+    Allan McRae helped kick-start the project by providing build scripts for a cross-compiler
+    and many essential packages. From there, other developers soon got involved, this website
+    was created, and <a href="https://web.archive.org/web/20170807070045/http://lists.archhurd.org/" title="Arch Hurd Mailing List Archives">mailing lists</a>
+    (original archives lost in the server change to linode, unfortunately) to coordinate development were
+    established. Arch Hurd now has over 200 packages in the core and extra repositories, with more in our
+    <a href="https://web.archive.org/web/20170807070045/http://aur.archhurd.org/" title="Arch User Repository">AUR</a>. We continue to make good progress,
+    and are rapidly progressing towards our goal.</p>
+
+<p>You can chat to us on IRC in #archhurd on irc.freenode.net, or on the mailing lists; and if you want to
+    get involved we'd love to hear from you.</p>
+
+<h3>Arch Linux</h3>
+<p><a href="https://web.archive.org/web/20170807070045/http://www.archlinux.org/" title="Arch Linux">Arch Linux</a> is a simple, lightweight
+    Linux distribution with packages optimised for the i686 and x86_64 architectures. It features
+    a BSD-style init system and is the origin of the pacman package manager, both essential
+    features in Arch Hurd. Arch Linux was founded by Judd Vinet, and is currently led by Aaron Griffin.
+    Arch uses a rolling-release development model rather than issuing fixed releases, and so Arch systems
+    which are even very old can (theoretically) be updated with very few issues. Today, Arch is one of
+    the better-known distributions, and frequently ranks highly on Distrowatch.</p>
+
+<p>There are number of other Arch derivatives, including Pandora, an Arch derivative including only
+    free software; and Arch Server, which provides more stable packages with a greater emphasis on
+    testing, stability, and security.</p>
+
+<h3>The Hurd</h3>
+<p><a href="https://web.archive.org/web/20170807070045/http://www.gnu.org/software/hurd/" title="GNU Hurd">The Hurd</a> is a project by
+    <a href="https://web.archive.org/web/20170807070045/http://www.gnu.org/" title="GNU">GNU</a>, and is intended to provide the kernel for
+    the GNU operating system. It consists of a microkernel, GNU Mach, upon which run a variety
+    of servers which implement the rest of the functionality of a Unix-like kernel (such as Linux,
+    or the BSDs). On a more abstract level, the Hurd is first and foremost, a set of standards
+    and protocols for these servers to communicate, which define an extensible system with little
+    dependence on mutual trust between the servers. "Hurd" is a recursive acronym for
+    "HIRD of Unix-Replacing Daemons", where "HIRD" is an acronym for
+    "HURD of Interfaces Representing Depth".</p>
+
+<p>The mission of the Hurd project is: to create a general-purpose kernel suitable for the
+    GNU operating system, which is viable for everyday use, and gives users and programs as
+    much control over their computing environment as possible.</p>
 </div>
 <br /><br />
 {% endblock %}

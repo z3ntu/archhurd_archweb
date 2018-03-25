@@ -10,29 +10,27 @@
 {% block content_left %}
 {% cache 62 main-page-left %}
 <div id="intro" class="box">
-    <h2>A simple, lightweight distribution</h2>
+    <h2>This is the Hurd. Welcome.</h2>
 
-    <p>You've reached the website for <strong>Arch Linux</strong>, a
-    lightweight and flexible Linux® distribution that tries to Keep It
-    Simple.</p>
+    <p>Welcome to the <strong>Arch Hurd</strong> website. Arch Hurd is a derivative
+      work of <a href="http://www.archlinux.org/">Arch Linux</a> porting it to the
+      <a href="http://www.gnu.org/software/hurd/">GNU Hurd</a> system with packages
+      optimised for the i686 architecture.</p>
 
-    <p>Currently we have official packages optimized for the x86-64
-    architecture. We complement our official package sets with a
-    <a href="https://aur.archlinux.org/" title="Arch User Repository (AUR)">
-        community-operated package repository</a> that grows in size and
-    quality each and every day.</p>
+    <p>Our goal is to provide an Arch-like user environment (BSD-style init scripts,
+      i686-optimised packages, use of the pacman package manager, rolling-release,
+      and a KISS set up) on the Hurd which is stable enough for use, if not as a
+      primary OS, at least as something to consider as a dual-boot option.</p>
 
-    <p>Our strong community is diverse and helpful, and we pride ourselves
-    on the range of skillsets and uses for Arch that stem from it. Please
-    check out our <a href="https://bbs.archlinux.org/" title="Arch Forums">forums</a>
-    and <a href="https://mailman.archlinux.org/mailman/listinfo/"
-        title="Arch Mailing Lists">mailing lists</a>
-    to get your feet wet.  Also glance through our <a href="https://wiki.archlinux.org/"
-        title="Arch Wiki">wiki</a>
-    if you want to learn more about Arch.</p>
+    <p>Currently we provide a <a href="/download/" title="Get Hurd">LiveCD</a>
+      for users to install or try Arch Hurd for themselves, and provide an installation guide
+      covering its use, as well as an alternate installation guide for users for whom the
+      LiveCD is not an option, for whatever reason.</p>
 
-    <p class="readmore"><a href="{% url 'page-about' %}"
-        title="Learn more about Arch Linux">Learn more...</a></p>
+    <p>We are attempting to bring the spirit of Arch Linux to the Hurd, and if you'd
+      like to help us achieve that, we'd love to hear from you on the mailing lists or IRC.</p>
+
+    <p class="readmore"><a href="/about/" title="Learn more about Arch Hurd">Learn more about Arch Hurd…</a></p>
 </div>
 
 <div id="news">
@@ -130,14 +128,8 @@
     <h4>Support</h4>
     <ul>
         <li><a href="{% url 'page-donate' %}" title="Help support Arch Linux">Donate</a></li>
-        <li><a href="https://www.zazzle.com/archlinux*"
+        <li><a href="https://www.zazzle.com/archhurd"
             title="T-shirts, mugs, mouse pads, hoodies, posters, skateboards, shoes, etc.">Products via Zazzle</a></li>
-        <li><a href="https://www.unixstickers.com/tag/archlinux" title="Arch
-        Linux stickers, t-shirts, hoodies, mugs, posters and pins">Products via Unixstickers</li>
-        <li><a href="https://www.freewear.org/?page=list_items&amp;org=Archlinux"
-            title="T-shirts">T-shirts via Freewear</a></li>
-        <li><a href="https://www.hellotux.com/arch"
-            title="T-shirts">T-shirts via HELLOTUX</a></li>
     </ul>
 
     <h4>Tools</h4>
@@ -187,19 +179,6 @@
         <li><a href="{% url 'news-list' %}" title="News Archives">News Archives</a></li>
         <li><a href="/feeds/" title="Various RSS Feeds">RSS Feeds</a></li>
     </ul>
-</div>
-
-<div id="home-donate-button" class="widget">
-    <a href="https://co.clickandpledge.com/Default.aspx?WID=47294">
-        <img width="210" height="34" src="{% static "click_and_pledge.png" %}" alt="Donate via Click&amp;Pledge to Arch Linux" title="Donate via Click&amp;Pledge to Arch Linux"/>
-    </a>
-</div>
-
-<div id="arch-sponsors" class="widget">
-    <a href="https://www.privateinternetaccess.com/" title="Private Internet Access">
-        <img width="265" height="41" src="{% static "pia_button.png" %}"
-            title="" alt="Private Internet Access logo"/>
-    </a>
 </div>
 {% endcache %}
 {% endblock %}
