@@ -1,17 +1,5 @@
 [
     {
-        "pk": 5, 
-        "model": "main.repo", 
-        "fields": {
-            "bugs_category": 33, 
-            "staging": false, 
-            "name": "Extra-Testing",
-            "bugs_project": 5, 
-            "svn_root": "packages",
-            "testing": true
-        }
-    }, 
-    {
         "pk": 1, 
         "model": "main.repo", 
         "fields": {
@@ -34,89 +22,29 @@
             "svn_root": "packages", 
             "testing": false
         }
-    }, 
-    {
-        "pk": 13, 
-        "model": "main.repo", 
-        "fields": {
-            "bugs_category": 10, 
-            "staging": true, 
-            "name": "Gnome-Unstable", 
-            "bugs_project": 1, 
-            "svn_root": "packages", 
-            "testing": false
-        }
-    }, 
-    {
-        "pk": 12, 
-        "model": "main.repo", 
-        "fields": {
-            "bugs_category": 10, 
-            "staging": true, 
-            "name": "KDE-Unstable", 
-            "bugs_project": 1, 
-            "svn_root": "packages", 
-            "testing": false
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "main.repo", 
-        "fields": {
-            "bugs_category": 46, 
-            "staging": false, 
-            "name": "Multilib", 
-            "bugs_project": 5, 
-            "svn_root": "community", 
-            "testing": false
-        }
-    }, 
-    {
-        "pk": 14, 
-        "model": "main.repo", 
-        "fields": {
-            "bugs_category": 46, 
-            "staging": true, 
-            "name": "Multilib-Staging", 
-            "bugs_project": 5, 
-            "svn_root": "community", 
-            "testing": false
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "main.repo", 
-        "fields": {
-            "bugs_category": 46, 
-            "staging": false, 
-            "name": "Multilib-Testing", 
-            "bugs_project": 5, 
-            "svn_root": "community", 
-            "testing": true
-        }
-    }, 
+    },
     {
         "pk": 10, 
         "model": "main.repo", 
         "fields": {
             "bugs_category": 10, 
-            "staging": true, 
+            "staging": false,
             "name": "Staging", 
             "bugs_project": 1, 
             "svn_root": "packages", 
             "testing": false
         }
-    }, 
+    },
     {
         "pk": 3, 
         "model": "main.repo", 
         "fields": {
             "bugs_category": 10, 
             "staging": false, 
-            "name": "Core-Testing",
+            "name": "Testing", 
             "bugs_project": 1, 
             "svn_root": "packages", 
             "testing": true
         }
-    }
+     }
 ]
