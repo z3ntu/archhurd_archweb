@@ -1,5 +1,29 @@
 [
     {
+        "pk": 1, 
+        "model": "main.repo", 
+        "fields": {
+            "bugs_category": 31, 
+            "staging": false, 
+            "name": "Core", 
+            "bugs_project": 1, 
+            "svn_root": "packages", 
+            "testing": false
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "main.repo", 
+        "fields": {
+            "bugs_category": 2, 
+            "staging": false, 
+            "name": "Extra", 
+            "bugs_project": 1, 
+            "svn_root": "packages", 
+            "testing": false
+        }
+    },
+    {
         "pk": 10, 
         "model": "main.repo", 
         "fields": {
@@ -10,5 +34,17 @@
             "svn_root": "packages", 
             "testing": false
         }
-    }
+    },
+    {
+        "pk": 3, 
+        "model": "main.repo", 
+        "fields": {
+            "bugs_category": 10, 
+            "staging": false, 
+            "name": "Testing", 
+            "bugs_project": 1, 
+            "svn_root": "packages", 
+            "testing": true
+        }
+     }
 ]
