@@ -22,30 +22,25 @@ def details_link(pkg):
 
 @register.simple_tag
 def scm_link(package, operation: str):
-    pkgbase = urlquote(gitlab_project_name_to_path(package.pkgbase))
-    if operation == 'tree':
-        return f'{settings.GITLAB_PACKAGES_REPO}/{pkgbase}'
-    elif operation == 'commits':
-        return f'{settings.GITLAB_PACKAGES_REPO}/{pkgbase}/-/commits/main'
+    parts = (operation, package.pkgbase)
+    linkbase = ("https://github.com/z3ntu/archhurd_packages/%s/master/%s")
+    return linkbase % tuple(urlquote(part.encode('utf-8')) for part in parts)
 
 
 @register.simple_tag
 def bugs_list(package):
-    url = "https://bugs.archlinux.org/"
+    url = "https://github.com/z3ntu/archhurd_packages/issues"
     data = {
-        'project': package.repo.bugs_project,
-        'string': package.pkgname,
+        'q': 'is:issue is:open [%s]' % package.pkgname,
     }
     return link_encode(url, data)
 
 
 @register.simple_tag
 def bug_report(package):
-    url = "https://bugs.archlinux.org/newtask"
+    url = "https://github.com/z3ntu/archhurd_packages/issues/new"
     data = {
-        'project': package.repo.bugs_project,
-        'product_category': package.repo.bugs_category,
-        'item_summary': '[%s] PLEASE ENTER SUMMARY' % package.pkgname,
+        'title': '[%s] PLEASE ENTER SUMMARY' % package.pkgname,
     }
     return link_encode(url, data)
 
