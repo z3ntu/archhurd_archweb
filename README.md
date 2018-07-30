@@ -72,10 +72,16 @@ packages, you will probably want the following:
         # Package file listing
         wget http://mirrors.kernel.org/archlinux/core/os/x86_64/core.files.tar.gz
         ./manage.py reporead --filesonly x86_64 core.files.tar.gz
-        ./manage.py syncisos
 
 Alter architecture and repo to get x86\_64 and packages from other repos if
 needed.
+
+8. Database Updates for Added/Removed packages
+
+        sqlite3 archweb.db < packages/sql/update.sqlite3.sql
+
+For PostgreSQL use packages/sql/update.postgresql_psycopg2.sql
+
 
 # Testing SMTP server
 

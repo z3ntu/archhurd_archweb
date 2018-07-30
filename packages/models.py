@@ -228,7 +228,7 @@ class UpdateManager(models.Manager):
     def log_update(self, old_pkg, new_pkg):
         '''Utility method to help log an update. This will determine the type
         based on how many packages are passed in, and will pull the relevant
-        necesary fields off the given packages.
+        necessary fields off the given packages.
         Note that in some cases, this is a no-op if we know this database type
         supports triggers to add these rows instead.'''
         if database_vendor(Package, 'write') in ('sqlite', 'postgresql'):
@@ -337,6 +337,10 @@ class Update(models.Model):
             arches.add(self.arch)
             pkgs = pkgs.filter(arch__in=arches)
         return pkgs
+
+    def get_absolute_url(self):
+        return '/packages/%s/%s/%s/' % (self.repo.name.lower(),
+                self.arch.name, self.pkgname)
 
     def __unicode__(self):
         return u'%s of %s on %s' % (self.get_action_flag_display(),
