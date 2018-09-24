@@ -1,6 +1,6 @@
 # Archweb README
 
-[![Build Status](https://travis-ci.org/archlinux/archweb.svg?branch=master)](https://travis-ci.org/archlinux/archweb)
+[![Build Status](https://travis-ci.com/archlinux/archweb.svg?branch=master)](https://travis-ci.com/archlinux/archweb)
 [![Coverage Status](https://coveralls.io/repos/github/archlinux/archweb/badge.svg?branch=master)](https://coveralls.io/github/archlinux/archweb?branch=master)
 
 To get a pretty version of this document, run
@@ -26,7 +26,7 @@ More detail in `requirements.txt` and `requirements_prod.txt`; it is best to
 use virtualenv and pip to handle these. But if you insist on (Arch Linux)
 packages, you will probably want the following:
 
-- django
+- python2-django
 - python2-psycopg2
 - python2-markdown
 - python2-memcached
@@ -109,6 +109,6 @@ Running coverage:
 
 # Production Installation
 
-Ask someone who knows, or you are going to be in trouble.
+Arch Linux has an Ansible role for Archweb in their [infrastructure repo](https://git.archlinux.org/infrastructure.git/).
 
 vim: set syntax=markdown et:
