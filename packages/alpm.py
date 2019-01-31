@@ -3,7 +3,7 @@ from ctypes.util import find_library
 import operator
 
 
-def load_alpm(name=None):
+def load_alpm(name=None): # pragma: no cover
     # Load the alpm library and set up some of the functions we might use
     if name is None:
         name = find_library('alpm')
@@ -50,7 +50,7 @@ class AlpmAPI(object):
     def vercmp(self, ver1, ver2):
         if not self.available:
             return None
-        return ALPM.alpm_pkg_vercmp(str(ver1), str(ver2))
+        return ALPM.alpm_pkg_vercmp(str(ver1).encode(), str(ver2).encode())
 
     def compare_versions(self, ver1, oper, ver2):
         func = self.OPERATOR_MAP.get(oper, None)
@@ -62,14 +62,14 @@ class AlpmAPI(object):
         return func(res, 0)
 
 
-def main():
+def main(): # pragma: no cover
     api = AlpmAPI()
-    print(api.version())
-    print(api.vercmp(1, 2))
-    print(api.compare_versions(1, '<', 2))
+    print((api.version()))
+    print((api.vercmp(1, 2)))
+    print((api.compare_versions(1, '<', 2)))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': # pragma: no cover
     main()
 
 # vim: set ts=4 sw=4 et:

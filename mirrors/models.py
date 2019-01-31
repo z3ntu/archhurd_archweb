@@ -1,6 +1,6 @@
 from datetime import timedelta
 import socket
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from django.core.exceptions import ValidationError
 from django.contrib.sites.models import Site
@@ -38,7 +38,7 @@ class Mirror(models.Model):
     class Meta:
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def downstream(self):
@@ -60,7 +60,7 @@ class MirrorProtocol(models.Model):
             help_text="Included by default when building mirror list?")
     created = models.DateTimeField(editable=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.protocol
 
     class Meta:
@@ -71,7 +71,7 @@ class MirrorUrl(models.Model):
     url = models.CharField("URL", max_length=255, unique=True)
     protocol = models.ForeignKey(MirrorProtocol, related_name="urls",
             editable=False, on_delete=models.PROTECT)
-    mirror = models.ForeignKey(Mirror, related_name="urls")
+    mirror = models.ForeignKey(Mirror, related_name="urls", on_delete=models.CASCADE)
     country = CountryField(blank=True, db_index=True)
     has_ipv4 = models.BooleanField("IPv4 capable", default=True,
             editable=False)
@@ -84,7 +84,7 @@ class MirrorUrl(models.Model):
     class Meta:
         verbose_name = 'mirror URL'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.url
 
     def address_families(self):
@@ -124,11 +124,11 @@ class MirrorUrl(models.Model):
 class MirrorRsync(models.Model):
     # max length is 40 chars for full-form IPv6 addr + subnet
     ip = IPNetworkField("IP")
-    mirror = models.ForeignKey(Mirror, related_name="rsync_ips")
+    mirror = models.ForeignKey(Mirror, related_name="rsync_ips", on_delete=models.CASCADE)
     created = models.DateTimeField(editable=False)
 
-    def __unicode__(self):
-        return unicode(self.ip)
+    def __str__(self):
+        return str(self.ip)
 
     class Meta:
         verbose_name = 'mirror rsync IP'
@@ -145,7 +145,7 @@ class CheckLocation(models.Model):
     class Meta:
         ordering = ('hostname', 'source_ip')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.hostname
 
     @property
@@ -165,8 +165,8 @@ class CheckLocation(models.Model):
 
 
 class MirrorLog(models.Model):
-    url = models.ForeignKey(MirrorUrl, related_name="logs")
-    location = models.ForeignKey(CheckLocation, related_name="logs", null=True)
+    url = models.ForeignKey(MirrorUrl, related_name="logs", on_delete=models.CASCADE)
+    location = models.ForeignKey(CheckLocation, related_name="logs", null=True, on_delete=models.CASCADE)
     check_time = models.DateTimeField(db_index=True)
     last_sync = models.DateTimeField(null=True)
     duration = models.FloatField(null=True)
@@ -182,7 +182,7 @@ class MirrorLog(models.Model):
             return timedelta()
         return self.check_time - self.last_sync
 
-    def __unicode__(self):
+    def __str__(self):
         return "Check of %s at %s" % (self.url.url, self.check_time)
 
     class Meta:

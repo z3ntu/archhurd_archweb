@@ -1,11 +1,11 @@
-from mock import patch
+from unittest.mock import patch
 
 
 from django.core.management import call_command
 from django.test import TransactionTestCase
 
 
-class RepoReadTest(TransactionTestCase):
+class RematchDeveloperTest(TransactionTestCase):
     fixtures = ['main/fixtures/arches.json', 'main/fixtures/repos.json']
 
     def test_rematch_developers(self):

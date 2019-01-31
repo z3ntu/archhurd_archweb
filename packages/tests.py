@@ -1,7 +1,12 @@
 import unittest
 
 from django.core import mail
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
+from django.contrib.auth.models import User
+
+from main.models import Package, Repo
+from packages.models import PackageRelation
+from devel.models import UserProfile
 
 from .alpm import AlpmAPI
 
@@ -15,7 +20,7 @@ class AlpmTestCase(unittest.TestCase):
     def test_version(self):
         version = alpm.version()
         self.assertIsNotNone(version)
-        version = version.split('.')
+        version = version.split(b'.')
         # version is a 3-tuple, e.g., '7.0.2'
         self.assertEqual(3, len(version))
 
@@ -75,7 +80,7 @@ class PackageSearchJson(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data['results']), 5)
-        self.assertEqual(set(map(lambda r: r['pkgname'], data['results'])),
+        self.assertEqual(set([r['pkgname'] for r in data['results']]),
                          {"coreutils", "glibc", "linux", "pacman", "systemd"})
 
     def test_packagename(self):
@@ -115,57 +120,57 @@ class PackageSearch(TestCase):
     def test_invalid(self):
         response = self.client.get('/packages/?q=test')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('0 matching packages found', response.content)
+        self.assertIn('0 matching packages found', response.content.decode())
 
     def test_exact_match(self):
         response = self.client.get('/packages/?q=linux')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('1 matching package found', response.content)
+        self.assertIn('1 matching package found', response.content.decode())
 
     def test_filter_name(self):
         response = self.client.get('/packages/?name=name')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('0 matching packages found', response.content)
+        self.assertIn('0 matching packages found', response.content.decode())
 
     def test_filter_repo(self):
         response = self.client.get('/packages/?repo=Core')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('5 matching packages found', response.content)
+        self.assertIn('5 matching packages found', response.content.decode())
 
     def test_filter_desc(self):
         response = self.client.get('/packages/?desc=kernel')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('1 matching package found', response.content)
+        self.assertIn('1 matching package found', response.content.decode())
 
     def test_filter_flagged(self):
         response = self.client.get('/packages/?flagged=Flagged')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('0 matching packages found', response.content)
+        self.assertIn('0 matching packages found', response.content.decode())
 
     def test_filter_not_flagged(self):
         response = self.client.get('/packages/?flagged=Not Flagged')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('5 matching packages found', response.content)
+        self.assertIn('5 matching packages found', response.content.decode())
 
     def test_filter_arch(self):
         response = self.client.get('/packages/?arch=any')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('0 matching packages found', response.content)
+        self.assertIn('0 matching packages found', response.content.decode())
 
     def test_filter_maintainer_orphan(self):
         response = self.client.get('/packages/?maintainer=orphan')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('5 matching packages found', response.content)
+        self.assertIn('5 matching packages found', response.content.decode())
 
     def test_filter_packager_unknown(self):
         response = self.client.get('/packages/?packager=unknown')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('5 matching packages found', response.content)
+        self.assertIn('5 matching packages found', response.content.decode())
 
     def test_sort(self):
         response = self.client.get('/packages/?sort=pkgname')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('5 matching packages found', response.content)
+        self.assertIn('5 matching packages found', response.content.decode())
 
     def test_head(self):
         response = self.client.head('/packages/?q=unknown')
@@ -183,7 +188,7 @@ class OpenSearch(TestCase):
     def test_packages_suggest(self):
         response = self.client.get('/opensearch/packages/suggest?q=linux')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('linux', response.content)
+        self.assertIn('linux', response.content.decode())
 
         response = self.client.get('/opensearch/packages/suggest')
 
@@ -266,7 +271,7 @@ class FlagPackage(TestCase):
                                     data,
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Package Flagged - linux', response.content)
+        self.assertIn('Package Flagged - linux', response.content.decode())
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('package [linux] marked out-of-date', mail.outbox[0].subject)
 
@@ -275,7 +280,7 @@ class FlagPackage(TestCase):
                                     data,
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('has already been flagged out-of-date.', response.content)
+        self.assertIn('has already been flagged out-of-date.', response.content.decode())
 
     def test_flag_package_invalid(self):
         data = {
@@ -287,8 +292,71 @@ class FlagPackage(TestCase):
                                     data,
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Enter a valid and useful out-of-date message', response.content)
+        self.assertIn('Enter a valid and useful out-of-date message', response.content.decode())
         self.assertEqual(len(mail.outbox), 0)
+
+
+class AdoptOrphanPackage(TransactionTestCase):
+    fixtures = ['main/fixtures/arches.json', 'main/fixtures/repos.json',
+                'main/fixtures/package.json']
+
+    def setUp(self):
+        password = 'test'
+        self.user = User.objects.create_superuser('admin',
+                                                  'admin@archlinux.org',
+                                                  password)
+        self.profile = UserProfile.objects.create(user=self.user,
+                                                  public_email="{}@awesome.com".format(self.user.username))
+        self.profile.allowed_repos.add(Repo.objects.get(name='Core'))
+        self.profile.save()
+        self.client.post('/login/', {
+                                    'username': self.user.username,
+                                    'password': password
+        })
+
+    def tearDown(self):
+        self.profile.delete()
+        self.user.delete()
+        PackageRelation.objects.all().delete()
+
+    def request(self, pkgid, adopt=True):
+        data = {
+            'pkgid': pkgid,
+        }
+        if adopt:
+            data['adopt'] = 'adopt'
+        else:
+            data['disown'] = 'disown'
+        return self.client.post('/packages/update/', data, follow=True)
+
+    def test_adopt_package(self):
+        pkg = Package.objects.first()
+        response = self.request(pkg.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(PackageRelation.objects.all()), 1)
+
+        response = self.request(pkg.id, False)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(PackageRelation.objects.all()), 0)
+
+    def test_no_permissions(self):
+        self.profile.allowed_repos.set([])
+        self.profile.save()
+        pkg = Package.objects.first()
+
+        response = self.request(pkg.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(PackageRelation.objects.all()), 0)
+
+    def test_wrong_request(self):
+        pkg = Package.objects.first()
+        response = self.client.post('/packages/update/', {'pkgid': pkg.id, }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Are you trying to adopt or disown', response.content.decode())
+
+    def test_stale_relations(self):
+        response = self.client.get('/packages/stale_relations/')
+        self.assertEqual(response.status_code, 200)
 
 
 # vim: set ts=4 sw=4 et:

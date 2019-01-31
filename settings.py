@@ -44,13 +44,14 @@ LOGIN_REDIRECT_URL = '/'
 # Set django's User stuff to use our profile model
 AUTH_PROFILE_MODULE = 'devel.UserProfile'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
 )
 
@@ -81,12 +82,18 @@ SESSION_COOKIE_HTTPONLY = True
 # Clickjacking protection
 X_FRAME_OPTIONS = 'DENY'
 
+# X-Content-Type-Options, stops browsers from trying to MIME-sniff the content type
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# X-XSS-Protection, enables cross-site scripting filter in most browsers
+SECURE_BROWSER_XSS_FILTER = True
+
 # Use new test runner
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 INSTALLED_APPS = (
-    'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.auth',
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -190,9 +197,9 @@ TEMPLATES = [
 
 # Enable the debug toolbar if requested
 if DEBUG_TOOLBAR:
-    MIDDLEWARE_CLASSES = \
+    MIDDLEWARE = \
             ['debug_toolbar.middleware.DebugToolbarMiddleware'] + \
-            list(MIDDLEWARE_CLASSES)
+            list(MIDDLEWARE)
 
     INSTALLED_APPS = list(INSTALLED_APPS) + ['debug_toolbar']
 

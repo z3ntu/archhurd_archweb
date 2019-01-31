@@ -1,5 +1,5 @@
 import tarfile
-from mock import patch
+from unittest.mock import patch
 from datetime import datetime
 
 
@@ -41,7 +41,12 @@ class RepoReadTest(TransactionTestCase):
         with self.assertRaises(CommandError) as e:
             call_command('reporead', 'x86_64', 'nothing.db.tar.gz')
         self.assertIn('Specified package database file does not exist.', str(e.exception))
-
+    
+    def test_invalid_arch(self):
+        with self.assertRaises(CommandError) as e:
+            call_command('reporead', 'armv64', 'devel/fixtures/core.db.tar.gz')
+        self.assertEqual('Specified architecture armv64 is not currently known.', str(e.exception))
+    
     def test_read_packages(self):
         with patch('devel.management.commands.reporead.logger') as logger:
             call_command('reporead', 'x86_64', 'devel/fixtures/core.db.tar.gz')
@@ -53,7 +58,7 @@ class RepoReadTest(TransactionTestCase):
 
         packages = Package.objects.all()
         import_packages = ["{}-{}-{}".format(pkg.pkgname, pkg.pkgver, pkg.pkgrel) for pkg in packages]
-        self.assertItemsEqual(files, import_packages)
+        self.assertCountEqual(files, import_packages)
 
     def test_flagoutofdate(self):
         pkg = self.create_pkg()

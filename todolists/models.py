@@ -9,7 +9,6 @@ from main.utils import set_created_field
 
 class Todolist(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
-    old_id = models.IntegerField(null=True, unique=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
     creator = models.ForeignKey(User, on_delete=models.PROTECT,
@@ -21,7 +20,7 @@ class Todolist(models.Model):
     class Meta:
         get_latest_by = 'created'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -55,12 +54,12 @@ class TodolistPackage(models.Model):
         (IN_PROGRESS, 'In-progress'),
     )
 
-    todolist = models.ForeignKey(Todolist)
+    todolist = models.ForeignKey(Todolist, on_delete=models.CASCADE)
     pkg = models.ForeignKey(Package, null=True, on_delete=models.SET_NULL)
     pkgname = models.CharField(max_length=255)
     pkgbase = models.CharField(max_length=255)
-    arch = models.ForeignKey(Arch)
-    repo = models.ForeignKey(Repo)
+    arch = models.ForeignKey(Arch, on_delete=models.CASCADE)
+    repo = models.ForeignKey(Repo, on_delete=models.CASCADE)
     created = models.DateTimeField(editable=False)
     last_modified = models.DateTimeField(editable=False)
     removed = models.DateTimeField(null=True, blank=True)
@@ -73,7 +72,7 @@ class TodolistPackage(models.Model):
         unique_together = (('todolist', 'pkgname', 'arch'),)
         get_latest_by = 'created'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.pkgname
 
     def status_css_class(self):
