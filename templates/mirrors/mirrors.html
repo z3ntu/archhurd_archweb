@@ -4,7 +4,7 @@
 
 {% block title %}Arch Linux - Mirror Overview{% endblock %}
 
-{% block head %}<link rel="stylesheet" type="text/css" href="{% static "flags/fam.css" %}" media="screen, projection" />{% endblock %}
+{% block head %}<link rel="stylesheet" type="text/css" href="{% static "flags/fam.css" %}" media="screen" />{% endblock %}
 
 {% block content %}
 <div id="dev-mirrorlist" class="box">
@@ -47,7 +47,7 @@
 </div>
 {% load cdn %}{% jquery %}{% jquery_tablesorter %}
 <script type="text/javascript" src="{% static "archweb.js" %}"></script>
-<script type="text/javascript">
+<script type="text/javascript" nonce={{ CSP_NONCE }}>
 $(document).ready(function() {
     $(".results").tablesorter({widgets: ['zebra'], sortList: [[2,0], [0,0]]});
 });

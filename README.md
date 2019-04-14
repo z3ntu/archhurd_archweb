@@ -18,7 +18,7 @@ See AUTHORS file.
 # Dependencies
 
 - python
-- python-virtualenv
+- rsync (optional for mirrorcheck with rsync mirrors)
 
 # Python dependencies
 
@@ -33,9 +33,9 @@ packages, you will probably want the following:
 
 # Testing Installation
 
-1. Run `virtualenv3`.
+1. Run `python -m venv env`.
 
-        cd /path/to/archweb && virtualenv3 ./env/
+        cd /path/to/archweb && python -m venv ./env/
 
 2. Activate the virtualenv.
 
@@ -110,6 +110,14 @@ Running coverage:
 
 To use the Django Debug toolbar install django-debug-toolbar and in local_settings.py
 set DEBUG_TOOLBAR to True.
+
+# Updating iPXE image
+
+The netboot image can be updated by building the [AUR
+package](https://aur.archlinux.org/packages/ipxe-netboot/) (note that it builds
+from git master) and copying the resulting ipxe.pxe, ipxe.lkrn and ipxe.efi to
+sitestatic/netboot. Then as Arch Linux Developer sign them with your PGP key
+```gpg --output ipxe.efi.sig --detach-sig ipxe.efi```.
 
 # Production Installation
 

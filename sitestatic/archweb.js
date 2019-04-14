@@ -178,23 +178,6 @@ if (typeof $ !== 'undefined' && typeof $.tablesorter !== 'undefined') {
   };
 })(jQuery);
 
-/* news/add.html */
-function enablePreview() {
-    $('#news-preview-button').click(function(event) {
-        event.preventDefault();
-        $.post('/news/preview/', {
-                data: $('#id_content').val(),
-                csrfmiddlewaretoken: $('#newsform input[name=csrfmiddlewaretoken]').val()
-            },
-            function(data) {
-                $('#news-preview-data').html(data);
-                $('#news-preview').show();
-            }
-        );
-        $('#news-preview-title').html($('#id_title').val());
-    });
-}
-
 /* packages/details.html */
 function ajaxifyFiles() {
     $('#filelink').click(function(event) {
@@ -471,15 +454,5 @@ function collapseNotes(elements) {
             hidden.contents().appendTo(ele);
             hidden.remove();
         });
-    });
-}
-
-/* HTML5 input type and attribute enhancements */
-function modify_attributes(to_change) {
-    /* jQuery doesn't let us change the 'type' attribute directly due to IE
-       woes, so instead we can clone and replace, setting the type. */
-    $.each(to_change, function(id, attrs) {
-        var obj = $(id);
-        obj.replaceWith(obj.clone().attr(attrs));
     });
 }

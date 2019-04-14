@@ -186,11 +186,23 @@ class OpenSearch(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_packages_suggest(self):
+        response = self.client.get('/opensearch/packages/suggest')
+        self.assertEqual(response.status_code, 200)
+
+    def test_packages_suggest_lowercase(self):
         response = self.client.get('/opensearch/packages/suggest?q=linux')
         self.assertEqual(response.status_code, 200)
         self.assertIn('linux', response.content.decode())
 
-        response = self.client.get('/opensearch/packages/suggest')
+    def test_packages_suggest_uppercase(self):
+        response = self.client.get('/opensearch/packages/suggest?q=LINUX')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('linux', response.content.decode())
+
+        response = self.client.get('/opensearch/packages/suggest?q=LINux')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('linux', response.content.decode())
+
 
 class PackageViews(TestCase):
     fixtures = ['main/fixtures/arches.json', 'main/fixtures/repos.json',
@@ -295,6 +307,64 @@ class FlagPackage(TestCase):
         self.assertIn('Enter a valid and useful out-of-date message', response.content.decode())
         self.assertEqual(len(mail.outbox), 0)
 
+    def test_flag_help(self):
+        response = self.client.get('/packages/flaghelp/')
+        self.assertEqual(response.status_code, 200)
+
+
+class UnFlagPackage(TransactionTestCase):
+    fixtures = ['main/fixtures/arches.json', 'main/fixtures/repos.json',
+                'main/fixtures/package.json']
+
+    def setUp(self):
+        password = 'test'
+        self.user = User.objects.create_superuser('admin',
+                                                  'admin@archlinux.org',
+                                                  password)
+        self.profile = UserProfile.objects.create(user=self.user,
+                                                  public_email="{}@awesome.com".format(self.user.username))
+        self.profile.allowed_repos.add(Repo.objects.get(name='Core'))
+        self.profile.save()
+        self.client.post('/login/', {
+                                    'username': self.user.username,
+                                    'password': password
+        })
+
+    def tearDown(self):
+        self.profile.delete()
+        self.user.delete()
+        PackageRelation.objects.all().delete()
+
+    def flag_package(self):
+        data = {
+            'website': '',
+            'email': 'nobody@archlinux.org',
+            'message': 'new linux version',
+        }
+        response = self.client.post('/packages/core/x86_64/linux/flag/',
+                                    data,
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_unflag_package_404(self):
+        response = self.client.get('/packages/core/x86_64/fooobar/unflag/')
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get('/packages/core/x86_64/fooobar/unflag/all/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_unflag_package(self):
+        self.flag_package()
+        response = self.client.get('/packages/core/x86_64/linux/unflag/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Flag linux as out-of-date', response.content.decode())
+
+    def test_unflag_all_package(self):
+        self.flag_package()
+        response = self.client.get('/packages/core/x86_64/linux/unflag/all/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Flag linux as out-of-date', response.content.decode())
+
 
 class AdoptOrphanPackage(TransactionTestCase):
     fixtures = ['main/fixtures/arches.json', 'main/fixtures/repos.json',
@@ -357,6 +427,42 @@ class AdoptOrphanPackage(TransactionTestCase):
     def test_stale_relations(self):
         response = self.client.get('/packages/stale_relations/')
         self.assertEqual(response.status_code, 200)
+
+
+class SignOffTest(TransactionTestCase):
+    fixtures = ['main/fixtures/arches.json', 'main/fixtures/repos.json',
+                'main/fixtures/package.json']
+
+    def setUp(self):
+        password = 'test'
+        self.user = User.objects.create_superuser('admin',
+                                                  'admin@archlinux.org',
+                                                  password)
+        self.profile = UserProfile.objects.create(user=self.user,
+                                                  public_email="{}@awesome.com".format(self.user.username))
+        self.profile.allowed_repos.add(Repo.objects.get(name='Core'))
+        self.profile.save()
+        self.client.post('/login/', {
+                                    'username': self.user.username,
+                                    'password': password
+        })
+
+    def tearDown(self):
+        self.profile.delete()
+        self.user.delete()
+        PackageRelation.objects.all().delete()
+
+    def test_signoffs(self):
+        response = self.client.get('/packages/signoffs/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_signoffs_json(self):
+        response = self.client.get('/packages/signoffs/json/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['signoff_groups'], [])
+
+
+# vim: set ts=4 sw=4 et:
 
 
 # vim: set ts=4 sw=4 et:

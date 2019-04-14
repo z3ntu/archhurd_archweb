@@ -19,7 +19,6 @@ import packages.urls
 import packages.urls_groups
 import public.views
 import releng.urls
-import retro.views
 import todolists.urls
 import visualize.urls
 
@@ -83,11 +82,6 @@ urlpatterns.extend([
     url(r'^opensearch/packages/suggest$', packages.views.opensearch_suggest, name='opensearch-packages-suggest'),
 ])
 
-# Retro home page views
-urlpatterns.extend([
-    url(r'^retro/(?P<year>[0-9]{4})/$', retro.views.retro_homepage, name='retro-homepage'),
-])
-
 # Sitemaps
 urlpatterns.extend([
     url(r'^sitemap.xml$', cache_page(1831)(sitemap_views.index),
@@ -107,7 +101,7 @@ urlpatterns.extend([
 ])
 
 # django-toolbar
-if settings.DEBUG:
+if settings.DEBUG_TOOLBAR:
     import debug_toolbar
     urlpatterns.extend([
         path('__debug__/', include(debug_toolbar.urls)),

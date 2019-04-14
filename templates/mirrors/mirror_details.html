@@ -5,7 +5,7 @@
 
 {% block title %}Arch Linux - {{ mirror.name }} - Mirror Details{% endblock %}
 
-{% block head %}<link rel="stylesheet" type="text/css" href="{% static "flags/fam.css" %}" media="screen, projection" />{% endblock %}
+{% block head %}<link rel="stylesheet" type="text/css" href="{% static "flags/fam.css" %}" media="screen" />{% endblock %}
 
 {% block content %}
 <div class="box">
@@ -111,11 +111,10 @@
 {% endblock %}
 
 {% block script_block %}
-{% load cdn %}{% jquery %}{% jquery_tablesorter %}
-<script type="text/javascript" src="{% static "d3-3.0.6.min.js" %}"></script>
+{% load cdn %}{% jquery %}{% jquery_tablesorter %}{% d3js %}
 <script type="text/javascript" src="{% static "archweb.js" %}"></script>
 <script type="text/javascript" src="{% static "mirror_status.js" %}"></script>
-<script type="text/javascript">
+<script type="text/javascript" nonce={{ CSP_NONCE }}>
 $(document).ready(function() {
     $("#available_urls:has(tbody tr)").tablesorter(
         {widgets: ['zebra'], sortList: [[1,0], [2,0]],

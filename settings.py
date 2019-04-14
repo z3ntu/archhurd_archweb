@@ -53,6 +53,7 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
+    'csp.middleware.CSPMiddleware',
 )
 
 # Base of the URL hierarchy
@@ -92,6 +93,15 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 # X-XSS-Protection, enables cross-site scripting filter in most browsers
 SECURE_BROWSER_XSS_FILTER = True
 
+# CSP Settings
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_INCLUDE_NONCE_IN = ['script-src']
+CSP_IMG_SRC = ("'self'", 'data:',)
+CSP_BASE_URI = ("'none'",)
+CSP_FORM_ACTION = ("'self'",)
+CSP_FRAME_ANCESTORS = ("'none'",)
+
 # Use new test runner
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
@@ -115,7 +125,6 @@ INSTALLED_APPS = (
     'public',
     'releng',
     'visualize',
-    'retro',
 )
 
 # Logging configuration for not getting overspammed
@@ -143,7 +152,7 @@ LOGGING = {
 }
 
 # Server used for linking to PGP keysearch results
-PGP_SERVER = 'pgp.mit.edu'
+PGP_SERVER = 'sks-keyservers.net'
 PGP_SERVER_SECURE = True
 
 # URL for SVN access for fetching commit messages (note absence of packages or
@@ -194,6 +203,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.contrib.messages.context_processors.messages',
+                'csp.context_processors.nonce',
             ],
         }
     }

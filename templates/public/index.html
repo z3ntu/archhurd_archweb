@@ -5,6 +5,7 @@
 {% block head %}
 <link rel="alternate" type="application/rss+xml" title="Arch Linux News Updates" href="/feeds/news/" />
 <link rel="alternate" type="application/rss+xml" title="Arch Linux Package Updates" href="/feeds/packages/" />
+<script type="text/javascript" src="{% static "homepage.js" %}" defer></script>
 {% endblock %}
 
 {% block content_left %}
@@ -30,7 +31,8 @@
     <p>We are attempting to bring the spirit of Arch Linux to the Hurd, and if you'd
       like to help us achieve that, we'd love to hear from you on the mailing lists or IRC.</p>
 
-    <p class="readmore"><a href="/about/" title="Learn more about Arch Hurd">Learn more about Arch Hurd…</a></p>
+    <p class="readmore"><a href="{% url 'page-about' %}"
+        title="Learn more about Arch Hurd">Learn more...</a></p>
 </div>
 
 <div id="news">
@@ -77,7 +79,7 @@
     <form id="pkgsearch-form" method="get" action="/packages/">
         <fieldset>
             <label for="pkgsearch-field">Package Search:</label>
-            <input id="pkgsearch-field" type="text" name="q" size="18" maxlength="200" />
+            <input id="pkgsearch-field" type="text" name="q" size="18" maxlength="200" autocomplete="off" />
         </fieldset>
     </form>
 </div>
@@ -144,6 +146,8 @@
 
     <h4>Development</h4>
     <ul>
+        <li><a href="https://wiki.archlinux.org/index.php/Getting_involved"
+            title="Getting involved">Getting involved</a></li>
         <li><a href="https://projects.archlinux.org/"
             title="Official Arch projects (git)">Projects in Git</a></li>
         <li><a href="{% url 'page-svn' %}"
@@ -181,14 +185,4 @@
     </ul>
 </div>
 {% endcache %}
-{% endblock %}
-
-{% block script_block %}
-
-{% load cdn %}{% jquery %}
-<script type="text/javascript">
-$(document).ready(function() {
-    $.ajax({ url: "{% static "homepage.js" %}", cache: true, dataType: "script", success: function() { setupTypeahead(); } });
-});
-</script>
 {% endblock %}
