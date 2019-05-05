@@ -65,6 +65,8 @@ class Repo(models.Model):
     name = models.CharField(max_length=255, unique=True)
     testing = models.BooleanField(default=False,
             help_text="Is this repo meant for package testing?")
+    public_testing = models.BooleanField(default=False,
+            help_text="Is this repo meant for package testing (without signoffs)?")
     staging = models.BooleanField(default=False,
             help_text="Is this repo meant for package staging?")
     bugs_project = models.SmallIntegerField(default=1,
@@ -238,7 +240,7 @@ class Package(models.Model):
         # versioned depend such as a kernel module
         requiredby = [list(vals)[0] for _, vals in
                 groupby(requiredby, lambda x: x.pkg.id)]
-        if len(requiredby) == 0:
+        if not requiredby:
             return requiredby
 
         # do we have duplicate pkgbase values for non-primary depends?
