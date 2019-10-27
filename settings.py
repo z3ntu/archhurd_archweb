@@ -115,6 +115,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'django_countries',
+    'django_extensions',
 
     'main',
     'mirrors',
@@ -176,6 +177,9 @@ COUNTRIES_OVERRIDE = {
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '00000000000000000000000000000000000000000000000'
+
+# Mailman poster password for announcements
+MAILMAN_PASSWORD = ''
 
 DATABASES = {
     'default': {

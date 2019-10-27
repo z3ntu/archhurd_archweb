@@ -27,7 +27,7 @@
         </thead>
         <tbody>
             {% for pkg in flagged %}
-                <tr class="{% cycle 'odd' 'even' %}">
+                <tr>
                     <td>{% pkg_details_link pkg %}</td>
                     <td>{{ pkg.full_version }}</td>
                     <td>{% with pkg.in_testing as tp %}{% if tp %}
@@ -41,6 +41,53 @@
                 </tr>
             {% empty %}
                 <tr class="empty"><td colspan="7"><em>No flagged packages to display</em></td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Signoff Status</h3>
+
+    <table id="dash-signoffs" class="results">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Arch</th>
+                <th>Target Repo</th>
+                <th>Last Updated</th>
+                <th>Approved</th>
+                <th>Signoffs</th>
+                <th>Packager</th>
+                <th>Maintainer(s)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in signoffs %}
+            <tr>
+                <td>{% pkg_details_link group.package %}</td>
+                <td>{{ group.version }}</td>
+                <td>{{ group.arch.name }}</td>
+                <td>{{ group.target_repo }}</td>
+                <td>{{ group.last_update|date }}</td>
+                {% if group.specification.known_bad %}
+                <td class="approval signoff-bad">Bad</td>
+                {% else %}
+                {% if not group.specification.enabled %}
+                <td class="approval signoff-disabled">Disabled</td>
+                {% else %}
+                <td class="approval signoff-{{ group.approved|yesno }}">{{ group.approved|yesno|capfirst }}</td>
+                {% endif %}
+                {% endif %}
+                <td><ul class="signoff-list">
+                    {% for signoff in group.signoffs %}
+                    <li class="signed-username" title="Signed off by {{ signoff.user }}">{{ signoff.user }}{% if signoff.revoked %} (revoked){% endif %}</li>
+                    {% endfor %}
+                </ul></td>
+                <td>{{ group.packager }}</td>
+                <td>{{ group.maintainers|join:', ' }}</td>
+            </tr>
+            {% empty %}
+            <tr class="empty"><td colspan="9"><em>No packages you maintain or have packaged need signoffs</em></td></tr>
             {% endfor %}
         </tbody>
     </table>
@@ -59,7 +106,7 @@
         </thead>
         <tbody>
             {% for todopkg in todopkgs %}
-                <tr class="{% cycle 'odd' 'even' %}">
+                <tr>
                     <td><a href="{{ todopkg.todolist.get_absolute_url }}"
                             title="View todo list: {{ todopkg.todolist.name }}">{{ todopkg.todolist.name }}</a></td>
                     <td>{% todopkg_details_link todopkg %}</td>
@@ -88,60 +135,17 @@
         </thead>
         <tbody>
             {% for todo in todos %}
-            <tr class="{% cycle 'odd' 'even' %}">
+            <tr>
                 <td><a href="{{ todo.get_absolute_url }}"
                         title="View todo list: {{ todo.name }}">{{ todo.name }}</a></td>
                 <td>{{ todo.created|date }}</td>
                 <td>{{ todo.creator.get_full_name }}</td>
-                <td class="wrap">{{ todo.description|urlize }}</td>
+                <td class="wrap">{{ todo.description|urlize|truncatewords:"50" }}</td>
                 <td>{{ todo.pkg_count }}</td>
                 <td>{{ todo.incomplete_count }}</td>
             </tr>
             {% empty %}
             <tr class="empty"><td colspan="6"><em>No package todo lists to display</em></td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <h3>Signoff Status</h3>
-
-    <table id="dash-signoffs" class="results">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Version</th>
-                <th>Arch</th>
-                <th>Target Repo</th>
-                <th>Last Updated</th>
-                <th>Approved</th>
-                <th>Signoffs</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for group in signoffs %}
-            <tr class="{% cycle 'odd' 'even' %}">
-                <td>{% pkg_details_link group.package %}</td>
-                <td>{{ group.version }}</td>
-                <td>{{ group.arch.name }}</td>
-                <td>{{ group.target_repo }}</td>
-                <td>{{ group.last_update|date }}</td>
-                {% if group.specification.known_bad %}
-                <td class="approval signoff-bad">Bad</td>
-                {% else %}
-                {% if not group.specification.enabled %}
-                <td class="approval signoff-disabled">Disabled</td>
-                {% else %}
-                <td class="approval signoff-{{ group.approved|yesno }}">{{ group.approved|yesno|capfirst }}</td>
-                {% endif %}
-                {% endif %}
-                <td><ul class="signoff-list">
-                    {% for signoff in group.signoffs %}
-                    <li class="signed-username" title="Signed off by {{ signoff.user }}">{{ signoff.user }}{% if signoff.revoked %} (revoked){% endif %}</li>
-                    {% endfor %}
-                </ul></td>
-            </tr>
-            {% empty %}
-            <tr class="empty"><td colspan="7"><em>No packages you maintain or have packaged need signoffs</em></td></tr>
             {% endfor %}
         </tbody>
     </table>
