@@ -87,6 +87,9 @@ CSRF_COOKIE_HTTPONLY = True
 # Clickjacking protection
 X_FRAME_OPTIONS = 'DENY'
 
+# Referrer Policy
+SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
+
 # X-Content-Type-Options, stops browsers from trying to MIME-sniff the content type
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
@@ -121,6 +124,7 @@ INSTALLED_APPS = (
     'mirrors',
     'news',
     'packages',
+    'planet',
     'todolists',
     'devel',
     'public',
@@ -160,14 +164,11 @@ PGP_SERVER_SECURE = True
 # community bit on the end, repo.svn_root is appended)
 SVN_BASE_URL = 'svn://svn.archlinux.org/'
 
-# Trackers used for ISO download magnet links
-TORRENT_TRACKERS = (
-    'udp://tracker.archlinux.org:6969',
-    'http://tracker.archlinux.org:6969/announce',
-)
-
 # How long to keep mirrorlog's in days
 MIRRORLOG_RETENTION_PERIOD = 365
+
+# Display a warning if serving netboot images on downgraded ciphers
+NETBOOT_SECURITY_BANNER = False
 
 # Shorten some names just a bit
 COUNTRIES_OVERRIDE = {
@@ -188,9 +189,15 @@ DATABASES = {
     },
 }
 
+# Planet limit of items per feed to keep the feed size in check.
+RSS_FEED_LIMIT = 25
+
+# Rebuilderd API endpoint
+REBUILDERD_URL = 'https://reproducible.archlinux.org/api/v0/pkgs/list'
+
 # Import local settings
 try:
-    from local_settings import *
+    from local_settings import * # noqa
 except ImportError:
     pass
 
@@ -205,6 +212,7 @@ TEMPLATES = [
             'debug': DEBUG,
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.request',
                 'django.template.context_processors.debug',
                 'django.contrib.messages.context_processors.messages',
                 'csp.context_processors.nonce',
@@ -215,9 +223,7 @@ TEMPLATES = [
 
 # Enable the debug toolbar if requested
 if DEBUG_TOOLBAR:
-    MIDDLEWARE = \
-            ['debug_toolbar.middleware.DebugToolbarMiddleware'] + \
-            list(MIDDLEWARE)
+    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + list(MIDDLEWARE)
 
     INSTALLED_APPS = list(INSTALLED_APPS) + ['debug_toolbar']
 

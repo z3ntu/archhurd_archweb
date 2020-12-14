@@ -4,13 +4,13 @@ from datetime import datetime
 import hashlib
 from pytz import utc
 
-from django.conf import settings
 from django.urls import reverse
 from django.db import models
 from django.db.models.signals import pre_save
 from django.utils.safestring import mark_safe
 
 from main.utils import set_created_field, parse_markdown
+from devel.fields import PGPKeyField
 
 
 class Release(models.Model):
@@ -19,12 +19,13 @@ class Release(models.Model):
     kernel_version = models.CharField(max_length=50, blank=True)
     md5_sum = models.CharField('MD5 digest', max_length=32, blank=True)
     sha1_sum = models.CharField('SHA1 digest', max_length=40, blank=True)
+    pgp_key = PGPKeyField(max_length=40, verbose_name="PGP key fingerprint",  null=True, blank=True,
+                          help_text="consists of 40 hex digits; use `gpg --fingerprint`")
     created = models.DateTimeField(editable=False)
     last_modified = models.DateTimeField(editable=False)
     available = models.BooleanField(default=True)
     info = models.TextField('Public information', blank=True)
-    torrent_data = models.TextField(blank=True,
-            help_text="base64-encoded torrent file")
+    torrent_data = models.TextField(blank=True, help_text="base64-encoded torrent file")
 
     class Meta:
         get_latest_by = 'release_date'
@@ -46,8 +47,6 @@ class Release(models.Model):
         query = [
             ('dn', "archlinux-%s-x86_64.iso" % self.version),
         ]
-        if settings.TORRENT_TRACKERS:
-            query.extend(('tr', uri) for uri in settings.TORRENT_TRACKERS)
         metadata = self.torrent()
         if metadata and 'info_hash' in metadata:
             query.insert(0, ('xt', "urn:btih:%s" % metadata['info_hash']))
@@ -79,7 +78,7 @@ class Release(models.Model):
             'info_hash': None,
         }
         if 'creation date' in data:
-            created= datetime.utcfromtimestamp(data['creation date'])
+            created = datetime.utcfromtimestamp(data['creation date'])
             metadata['creation_date'] = created.replace(tzinfo=utc)
         if info:
             metadata['info_hash'] = hashlib.sha1(bencode(info)).hexdigest()

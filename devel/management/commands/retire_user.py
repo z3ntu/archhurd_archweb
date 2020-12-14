@@ -25,19 +25,18 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 MAPPING = {
-        'Developers': 'Retired Developers',
-        'Trusted Users': 'Retired Trusted Users',
-        'Support Staff': 'Retired Support Staff',
+    'Developers': 'Retired Developers',
+    'Trusted Users': 'Retired Trusted Users',
+    'Support Staff': 'Retired Support Staff',
 }
 
 
 class Command(BaseCommand):
-    help = "Retires a user by deactiving the user and moving the group membership to retired groups."
+    help = "Retires a user by deactivating the user and moving the group membership to retired groups."
     missing_args_message = 'missing argument user.'
 
     def add_arguments(self, parser):
         parser.add_argument('user', type=str)
-
 
     def handle(self, *args, **options):
         v = int(options.get('verbosity', 0))

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static from staticfiles %}
+{% load static %}
 
 {% block title %}Arch Linux - Todo Lists{% endblock %}
 
@@ -35,15 +35,15 @@
         <tbody>
             {% for list in lists %}
             <tr>
-                <td><a href="{{ list.get_absolute_url }}"
+                <td class="wrap"><a href="{{ list.get_absolute_url }}"
                         title="View todo list: {{ list.name }}">{{ list.name }}</a></td>
                 <td>{{ list.created|date }}</td>
                 <td>{{ list.creator.get_full_name }}</td>
                 <td class="wrap">{{ list.description|urlize }}</td>
                 <td>{{ list.pkg_count }}</td>
                 <td>{{ list.incomplete_count }}</td>
-                <td>{% ifequal list.incomplete_count 0 %}<span class="complete">Complete</span>
-                    {% else %}<span class="incomplete">Incomplete</span>{% endifequal %}</td>
+                <td>{% if list.incomplete_count == 0 %}<span class="complete">Complete</span>
+                    {% else %}<span class="incomplete">Incomplete</span>{% endif %}</td>
             </tr>
             {% endfor %}
         </tbody>

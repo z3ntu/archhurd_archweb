@@ -1,5 +1,6 @@
 # Archweb README
 
+[![Actions Status](https://github.com/archlinux/archweb/workflows/Github-Actions/badge.svg)](https://github.com/archlinux/archweb/actions)
 [![Build Status](https://travis-ci.com/archlinux/archweb.svg?branch=master)](https://travis-ci.com/archlinux/archweb)
 [![Coverage Status](https://coveralls.io/repos/github/archlinux/archweb/badge.svg?branch=master)](https://coveralls.io/github/archlinux/archweb?branch=master)
 
@@ -53,7 +54,7 @@ packages, you will probably want the following:
 
         ./manage.py migrate
 
-5. Load the fixtures to prepopulate some data. If you don't want some of the
+5. Load the fixtures to pre populate some data. If you don't want some of the
    provided data, adjust the file glob accordingly.
 
         ./manage.py loaddata main/fixtures/*.json
@@ -111,6 +112,22 @@ Running coverage:
 To use the Django Debug toolbar install django-debug-toolbar and in local_settings.py
 set DEBUG_TOOLBAR to True.
 
+# Management commands
+
+Archweb provides multiple management commands for importing various sorts of data. An overview of commands:
+
+* generate_keyring - Assemble a GPG keyring with all known developer keys.
+* pgp_import - Import keys and signatures from a given GPG keyring.
+* read_reproducible_status - Import rebuilderd status into Archweb.
+* rematch_developers - Rematch flag requests and packages where user_id/packager_id is NULL to a Developer.
+* reporead - Parses a repo.db.tar.gz, repo.files.tar.gz file and updates the Arch database with the relevant changes.
+* reporead_inotify - Watches a templated patch for updates of *.files.tar.gz to update Arch databases with.
+* donor_import - Import donators from a dovecot maildir dump.
+* mirrorcheck - Poll every active mirror URLs to store the lastsnyc time and record network timing details.
+* mirrorresolv - Poll every active mirror URLs and determine wheteher they have IP4 and/or IPv6 addresses.
+* populate_signoffs - retrieves the latest commit message of a signoff-eligible package.
+* update_planet - Import all feeds for users who have a valid website and website_rss in their user profile.
+
 # Updating iPXE image
 
 The netboot image can be updated by building the [AUR
@@ -118,6 +135,11 @@ package](https://aur.archlinux.org/packages/ipxe-netboot/) (note that it builds
 from git master) and copying the resulting ipxe.pxe, ipxe.lkrn and ipxe.efi to
 sitestatic/netboot. Then as Arch Linux Developer sign them with your PGP key
 ```gpg --output ipxe.efi.sig --detach-sig ipxe.efi```.
+
+Testing a build iPXE image requires the 'qemu' package and running the
+following command:
+
+        qemu-system-x86_64 -kernel ipxe.lkrn -m 2G
 
 # Production Installation
 

@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import DetailView, ListView
+from django.conf import settings
 
 from .models import Release
 from mirrors.models import MirrorUrl
@@ -35,7 +36,7 @@ def release_torrent(request, version):
 
 class ReleaseJSONEncoder(DjangoJSONEncoder):
     release_attributes = ('release_date', 'version', 'kernel_version',
-            'created', 'md5_sum', 'sha1_sum')
+                          'created', 'md5_sum', 'sha1_sum')
 
     def default(self, obj):
         if isinstance(obj, Release):
@@ -58,7 +59,7 @@ def releases_json(request):
     releases = Release.objects.all()
     try:
         latest_version = Release.objects.filter(available=True).values_list(
-                'version', flat=True).latest()
+            'version', flat=True).latest()
     except Release.DoesNotExist:
         latest_version = None
 
@@ -71,6 +72,7 @@ def releases_json(request):
     response = HttpResponse(to_json, content_type='application/json')
     return response
 
+
 def netboot_config(request):
     releases = Release.objects.filter(available=True).values_list('version', flat=True).order_by('-release_date')
     mirrorurls = MirrorUrl.objects.filter(protocol__protocol='http',
@@ -78,17 +80,17 @@ def netboot_config(request):
                                           mirror__public=True,
                                           mirror__active=True,
                                           mirror__isos=True)
-    mirrorurls = sorted( mirrorurls,
-                         key=lambda x: x.mirror.name)
-    mirrorurls = sorted( mirrorurls,
-                         key=lambda x: x.country.name)
+    mirrorurls = sorted(mirrorurls, key=lambda x: x.mirror.name)
+    mirrorurls = sorted(mirrorurls, key=lambda x: x.country.name)
     context = {
         'releases': releases,
         'mirrorurls': mirrorurls,
     }
     return render(request, "releng/archlinux.ipxe", context, content_type='text/plain')
 
+
 def netboot_info(request):
-    return render(request, "releng/netboot.html", None)
+    return render(request, "releng/netboot.html",
+                  {'security_banner':  settings.NETBOOT_SECURITY_BANNER})
 
 # vim: set ts=4 sw=4 et:

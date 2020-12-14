@@ -1,4 +1,4 @@
-{% load static from staticfiles %}<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 {% load group %}
 <html lang="en">
 <head>
@@ -43,7 +43,7 @@
                     <li><a href="https://mailman.archlinux.org/mailman/private/arch-dev/"
                         title="arch-dev mailing list archives">Archives</a></li>
 		    {% endif %}
-                    <li><a href="https://zabbix.archlinux.org/"
+                    <li><a href="https://monitoring.archlinux.org/"
                         title="Arch server monitoring">Server Monitoring</a></li>
                     {% if user.is_staff %}
                     <li><a href="{% url 'admin:index' %}" title="Django Admin Interface">Django Admin</a></li>
@@ -73,8 +73,9 @@
         <div id="footer">
             <p><a href="https://www.gnu.org/software/hurd/">The Hurd</a> is a <a href="https://www.gnu.org/">GNU</a> project.
             <p>Copyright © 2002-{% now "Y" %} <a href="mailto:jvinet@zeroflux.org"
-                title="Contact Judd Vinet">Judd Vinet</a> and <a href="mailto:aaron@archlinux.org"
-                title="Contact Aaron Griffin">Aaron Griffin</a>.</p>
+                title="Contact Judd Vinet">Judd Vinet</a>, <a href="mailto:aaron@archlinux.org"
+                title="Contact Aaron Griffin">Aaron Griffin</a> and
+                <a href="mailto:anthraxx@archlinux.org" title="Contact Levente Polyák">Levente Polyák</a>.</p>
 
             <p>The Arch Linux name and logo are recognized
             <a href="https://wiki.archlinux.org/index.php/DeveloperWiki:TrademarkPolicy"

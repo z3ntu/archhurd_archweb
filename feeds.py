@@ -7,6 +7,7 @@ from django.contrib.sites.models import Site
 from django.contrib.syndication.views import Feed
 from django.db import connection
 from django.db.models import Q
+from django.urls import reverse
 from django.utils.feedgenerator import Rss201rev2Feed
 from django.views.decorators.http import condition
 
@@ -14,6 +15,7 @@ from main.models import Arch, Repo, Package
 from news.models import News
 from packages.models import Update
 from releng.models import Release
+from planet.models import FeedItem
 
 
 class BatchWritesWrapper(object):
@@ -74,10 +76,23 @@ class PackageFeed(Feed):
             qs = qs.filter(Q(arch=a) | Q(arch__agnostic=True))
             obj['arch'] = a
         if repo != '':
-            # feed for a single arch AND repo
-            r = Repo.objects.get(name__iexact=repo)
-            qs = qs.filter(repo=r)
-            obj['repo'] = r
+            if repo == 'stable-repos':
+                # feed for a single arch AND all stable repos
+                r = Repo.objects.filter(testing=False, staging=False)
+                qs = qs.filter(repo__in=r)
+                obj['repos'] = r
+                setattr(obj['repos'], 'name', 'all stable repositories')
+            elif repo == 'testing-repos':
+                # feed for a single arch AND all testing repos
+                r = Repo.objects.filter(testing=True, staging=False)
+                qs = qs.filter(repo__in=r)
+                obj['repos'] = r
+                setattr(obj['repos'], 'name', 'all testing repositories')
+            else:
+                # feed for a single arch AND repo
+                r = Repo.objects.get(name__iexact=repo)
+                qs = qs.filter(repo=r)
+                obj['repo'] = r
         else:
             qs = qs.filter(repo__staging=False)
         obj['qs'] = qs[:50]
@@ -85,24 +100,47 @@ class PackageFeed(Feed):
 
     def title(self, obj):
         s = 'Arch Linux: Recent package updates'
-        if 'repo' in obj and 'arch' in obj:
-            s += ' (%s [%s])' % (obj['arch'].name, obj['repo'].name.lower())
-        elif 'repo' in obj:
-            s += ' [%s]' % (obj['repo'].name.lower())
-        elif 'arch' in obj:
-            s += ' (%s)' % (obj['arch'].name)
-        return s
+        fields = dict(
+            arch=obj['arch'].name if 'arch' in obj else None,
+            repo='[%s]' % obj['repo'].name.lower() if 'repo' in obj else None,
+            repos=obj['repos'].name if 'repos' in obj else None,)
+
+        if fields['arch']:
+            if fields['repo']:
+                s += ' (%(arch)s in %(repo)s)'
+            elif fields['repos']:
+                s += ' (%(arch)s in %(repos)s)'
+            else:
+                s += ' (%(arch)s)'
+
+        elif fields['repo']:
+            s += ' in %(repo)s'
+
+        elif fields['repos']:
+            s += ' in %(repos)s'
+
+        return s % fields
 
     def description(self, obj):
-        s = 'Recently updated packages in the Arch Linux package repositories'
-        if 'arch' in obj:
-            s += ' for the \'%s\' architecture' % obj['arch'].name.lower()
+        s = 'Recently updated packages'
+
+        fields = dict(
+            arch=obj['arch'].name if 'arch' in obj else None,
+            repo='[%s]' % obj['repo'].name.lower() if 'repo' in obj else None,
+            repos=', '.join(['[%s]' % r.name.lower() for r in obj['repos'].all()]) if 'repos' in obj else None,)
+
+        if fields['arch']:
+            s += ' for the \'%(arch)s\' architecture'
             if not obj['arch'].agnostic:
                 s += ' (including \'any\' packages)'
-        if 'repo' in obj:
-            s += ' in the [%s] repository' % obj['repo'].name.lower()
+        if fields['repo']:
+            s += ' in the Arch Linux %(repo)s repository'
+        elif fields['repos']:
+            s += ' in the %(repos)s repositories'
+        else:
+            s += ' in the Arch Linux package repositories'
         s += '.'
-        return s
+        return s % fields
 
     subtitle = description
 
@@ -115,8 +153,8 @@ class PackageFeed(Feed):
         # http://diveintomark.org/archives/2004/05/28/howto-atom-id
         date = item.last_update
         return 'tag:%s,%s:%s%s' % (Site.objects.get_current().domain,
-                date.strftime('%Y-%m-%d'), item.get_absolute_url(),
-                date.strftime('%Y%m%d%H%M'))
+                                   date.strftime('%Y-%m-%d'), item.get_absolute_url(),
+                                   date.strftime('%Y%m%d%H%M'))
 
     def item_pubdate(self, item):
         return item.last_update
@@ -129,6 +167,7 @@ class PackageFeed(Feed):
 
     def item_categories(self, item):
         return (item.repo.name, item.arch.name)
+
 
 def removal_last_modified(request, *args, **kwargs):
     try:
@@ -165,10 +204,23 @@ class PackageUpdatesFeed(Feed):
             qs = qs.filter(Q(arch=a) | Q(arch__agnostic=True))
             obj['arch'] = a
         if repo != '':
-            # feed for a single arch AND repo
-            r = Repo.objects.get(name__iexact=repo)
-            qs = qs.filter(repo=r)
-            obj['repo'] = r
+            if repo == 'stable-repos':
+                # feed for a single arch AND all stable repos
+                r = Repo.objects.filter(testing=False, staging=False)
+                qs = qs.filter(repo__in=r)
+                obj['repos'] = r
+                setattr(obj['repos'], 'name', 'all stable repositories')
+            elif repo == 'testing-repos':
+                # feed for a single arch AND all testing repos
+                r = Repo.objects.filter(testing=True, staging=False)
+                qs = qs.filter(repo__in=r)
+                obj['repos'] = r
+                setattr(obj['repos'], 'name', 'all testing repositories')
+            else:
+                # feed for a single arch AND repo
+                r = Repo.objects.get(name__iexact=repo)
+                qs = qs.filter(repo=r)
+                obj['repo'] = r
         else:
             qs = qs.filter(repo__staging=False)
 
@@ -176,25 +228,49 @@ class PackageUpdatesFeed(Feed):
         return obj
 
     def title(self, obj):
-        s = 'Arch Linux: Recent {} packages'.format(obj['action'])
-        if 'repo' in obj and 'arch' in obj:
-            s += ' (%s [%s])' % (obj['arch'].name, obj['repo'].name.lower())
-        elif 'repo' in obj:
-            s += ' [%s]' % (obj['repo'].name.lower())
-        elif 'arch' in obj:
-            s += ' (%s)' % (obj['arch'].name)
-        return s
+        s = 'Arch Linux: Recently %(action)s packages' % obj
+
+        fields = dict(
+            arch=obj['arch'].name if 'arch' in obj else None,
+            repo='[%s]' % obj['repo'].name.lower() if 'repo' in obj else None,
+            repos=obj['repos'].name if 'repos' in obj else None,)
+
+        if fields['arch']:
+            if fields['repo']:
+                s += ' (%(arch)s in %(repo)s)'
+            elif fields['repos']:
+                s += ' (%(arch)s in %(repos)s)'
+            else:
+                s += ' (%(arch)s)'
+
+        elif fields['repo']:
+            s += ' in %(repo)s'
+
+        elif fields['repos']:
+            s += ' in %(repos)s'
+
+        return s % fields
 
     def description(self, obj):
-        s = 'Recently {} packages in the Arch Linux package repositories'.format(obj['action'])
-        if 'arch' in obj:
-            s += ' for the \'%s\' architecture' % obj['arch'].name.lower()
+        s = 'Recently %(action)s packages' % obj
+
+        fields = dict(
+            arch=obj['arch'].name if 'arch' in obj else None,
+            repo='[%s]' % obj['repo'].name.lower() if 'repo' in obj else None,
+            repos=', '.join(['[%s]' % r.name.lower() for r in obj['repos'].all()]) if 'repos' in obj else None,)
+
+        if fields['arch']:
+            s += ' for the \'%(arch)s\' architecture'
             if not obj['arch'].agnostic:
                 s += ' (including \'any\' packages)'
-        if 'repo' in obj:
-            s += ' in the [%s] repository' % obj['repo'].name.lower()
+        if fields['repo']:
+            s += ' in the Arch Linux %(repo)s repository'
+        elif fields['repos']:
+            s += ' in the %(repos)s repositories'
+        else:
+            s += ' in the Arch Linux package repositories'
         s += '.'
-        return s
+        return s % fields
 
     subtitle = description
 
@@ -207,8 +283,8 @@ class PackageUpdatesFeed(Feed):
         # http://diveintomark.org/archives/2004/05/28/howto-atom-id
         date = item.created
         return 'tag:%s,%s:%s%s' % (Site.objects.get_current().domain,
-                date.strftime('%Y-%m-%d'), item.get_absolute_url(),
-                date.strftime('%Y%m%d%H%M'))
+                                   date.strftime('%Y-%m-%d'), item.get_absolute_url(),
+                                   date.strftime('%Y%m%d%H%M'))
 
     def item_pubdate(self, item):
         return item.created
@@ -244,8 +320,7 @@ class NewsFeed(Feed):
     __name__ = 'news_feed'
 
     def items(self):
-        return News.objects.select_related('author').order_by(
-                '-postdate', '-id')[:10]
+        return News.objects.select_related('author').order_by('-postdate', '-id')[:10]
 
     item_guid_is_permalink = False
 
@@ -299,12 +374,14 @@ class ReleaseFeed(Feed):
         # http://diveintomark.org/archives/2004/05/28/howto-atom-id
         date = item.release_date
         return 'tag:%s,%s:%s' % (Site.objects.get_current().domain,
-                date.strftime('%Y-%m-%d'), item.get_absolute_url())
+                                 date.strftime('%Y-%m-%d'), item.get_absolute_url())
 
     def item_enclosure_url(self, item):
         domain = Site.objects.get_current().domain
         proto = 'https'
-        return "%s://%s/%s.torrent" % (proto, domain, item.iso_url())
+        # Use archweb internal link, as the rsync job might not have been
+        # running and RSS torrent clients do not retry failed urls often.
+        return "%s://%s/%s" % (proto, domain, reverse('releng-release-torrent', args=[item.version]))
 
     def item_enclosure_length(self, item):
         if item.torrent_data:
@@ -313,5 +390,50 @@ class ReleaseFeed(Feed):
         return ""
 
     item_enclosure_mime_type = 'application/x-bittorrent'
+
+
+class PlanetFeed(Feed):
+    feed_type = FasterRssFeed
+
+    title = 'Planet Arch Linux'
+    link = '/planet/'
+    description = 'Planet Arch Linux is a window into the world, work and lives of Arch Linux hackers and developers'
+    subtitle = description
+
+    def __call__(self, request, *args, **kwargs):
+        wrapper = condition(last_modified_func=planet_last_modified)
+        return wrapper(super(PlanetFeed, self).__call__)(request, *args, **kwargs)
+
+    __name__ = 'planet_feed'
+
+    def items(self):
+        return FeedItem.objects.filter().order_by('-publishdate')
+
+    def item_title(self, item):
+        return item.title
+
+    def item_description(self, item):
+        return item.summary
+
+    def item_pubdate(self, item):
+        return datetime.combine(item.publishdate, time()).replace(tzinfo=utc)
+
+    def item_updateddate(self, item):
+        return item.publishdate
+
+    item_guid_is_permalink = False
+
+    def item_guid(self, item):
+        # http://diveintomark.org/archives/2004/05/28/howto-atom-id
+        date = item.publishdate
+        return 'tag:%s,%s:%s' % (Site.objects.get_current().domain,
+                                 date.strftime('%Y-%m-%d'), item.url)
+
+
+def planet_last_modified(request, *args, **kwargs):
+    try:
+        return FeedItem.objects.latest().publishdate
+    except FeedItem.DoesNotExist:
+        pass
 
 # vim: set ts=4 sw=4 et:
