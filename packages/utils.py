@@ -131,6 +131,7 @@ class Difference(object):
 
 
 def multilib_differences():
+    return []
     # Query for checking multilib out of date-ness
     if database_vendor(Package) == 'sqlite':
         pkgname_sql = """
